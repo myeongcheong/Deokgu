@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>불안형 소꿉친구는 안 물어요</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink:#443633;
+  --muted:#816b66;
+  --rose:#b77e8a;
+  --pink:#f0cbd0;
+  --paper:#fffaf5;
+  --line:rgba(126,91,83,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:"Gowun Batang",serif;color:var(--ink);background:#f6e8e7}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--rose);outline-offset:3px}
+
+#app{
+  position:relative;
+  width:100%;
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
+  background:
+    linear-gradient(125deg,rgba(255,251,249,.55),rgba(255,242,239,.55)),
+    url("assets/background.jpg") center/cover no-repeat,
+    linear-gradient(135deg,#e8e9f5,#ffe5e8 55%,#fff8ed);
+}
+#app:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 15% 12%,rgba(255,255,255,.8),transparent 45%),
+    radial-gradient(circle at 85% 85%,rgba(244,187,201,.32),transparent 45%);
+}
+#petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:15}
+.petal{
+  position:absolute;top:-30px;width:12px;height:15px;
+  background:#f3c0ca;border-radius:80% 10% 75% 20%;
+  animation:fall linear infinite;
+}
+@keyframes fall{
+  from{transform:translate3d(0,-30px,0) rotate(0)}
+  50%{transform:translate3d(65px,50vh,0) rotate(180deg)}
+  to{transform:translate3d(-35px,110vh,0) rotate(360deg)}
+}
+
+.screen{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:22px;opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(12px);transition:opacity .45s,transform .45s,visibility .45s;
+}
+.screen.active{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.glass{
+  background:rgba(255,250,246,.75);backdrop-filter:blur(12px);
+  border:1px solid rgba(140,100,95,.28);
+  box-shadow:0 24px 75px rgba(91,59,61,.15);
+}
+.title-card{
+  width:min(850px,100%);padding:65px 28px;text-align:center;position:relative;
+}
+.title-card:before{
+  content:"";position:absolute;inset:12px;border:1px solid var(--line);pointer-events:none;
+}
+.flower{font-size:29px;color:var(--rose);margin-bottom:18px}
+.eyebrow{font-size:11px;letter-spacing:.3em;color:var(--rose)}
+.title-card h1{
+  font-family:"Noto Serif KR",serif;font-size:clamp(29px,5vw,60px);
+  font-weight:500;letter-spacing:-.07em;line-height:1.6;margin:23px 0;
+}
+.subtitle{font-size:13px;line-height:2.2;color:var(--muted)}
+.primary{
+  margin-top:35px;padding:13px 38px;border:1px solid #bd969c;
+  background:rgba(255,255,255,.55);color:var(--ink);
+  font-size:13px;letter-spacing:.12em;transition:.25s;
+}
+.primary:hover,.nav-button:hover{background:white;transform:translateY(-2px)}
+
+.menu-card{
+  width:min(880px,100%);padding:38px 28px;text-align:center;
+  max-height:94dvh;overflow-y:auto;
+}
+.menu-card h2{font-size:clamp(27px,4vw,42px);font-weight:400;margin:12px 0}
+.menu-desc{font-size:12px;color:var(--muted);margin-bottom:28px;line-height:1.9}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.menu-button{
+  min-height:91px;padding:13px 8px;background:rgba(255,255,255,.48);
+  border:1px solid var(--line);color:var(--ink);transition:.25s;
+}
+.menu-button:hover{background:#fff;transform:translateY(-3px)}
+.menu-button span{display:block;font-size:17px;margin-bottom:7px}
+.menu-button small{font-size:10px;color:var(--rose);letter-spacing:.08em}
+
+.book{
+  position:relative;width:min(1100px,100%);height:min(760px,92dvh);
+  padding:35px 45px 26px;display:flex;flex-direction:column;overflow:hidden;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 34px,rgba(120,90,75,.025) 35px),
+    linear-gradient(120deg,#fffaf5,#f5eae1);
+  border:1px solid #d3b9ad;
+  box-shadow:7px 7px 0 #e4d3c7,12px 12px 0 #cbb7ad,0 22px 60px rgba(82,51,46,.2);
+}
+.book:before{
+  content:"";position:absolute;inset:12px;border:1px solid var(--line);pointer-events:none;
+}
+.back{
+  position:absolute;top:19px;left:22px;z-index:2;
+  border:0;background:transparent;color:var(--muted);font-size:12px;
+}
+.book-header{text-align:center;padding:7px 0 18px;border-bottom:1px solid var(--line);flex-shrink:0}
+.book-header small{font-size:10px;letter-spacing:.25em;color:var(--rose)}
+.book-header h2{font-size:clamp(23px,3vw,34px);font-weight:400;margin-top:7px}
+.book-body{
+  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:25px 12px 20px;scrollbar-width:thin;scrollbar-color:#d9b2b9 transparent;
+}
+.book-body::-webkit-scrollbar{width:5px}
+.book-body::-webkit-scrollbar-thumb{background:#d9b2b9;border-radius:8px}
+
+.profile{display:grid;grid-template-columns:.85fr 1.15fr;gap:35px;align-items:start}
+.portrait{
+  width:100%;aspect-ratio:3/4;max-height:480px;overflow:hidden;
+  border:1px solid #d5b8b1;background:#f0dddd;
+}
+.portrait img{width:100%;height:100%;object-fit:cover;object-position:center 25%}
+.profile h3{font-size:40px;font-weight:400}
+.profile-tag{color:var(--rose);font-size:12px;margin:8px 0 22px}
+.info{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.9}
+.info strong{font-weight:400;color:#a17d76}
+.prose{font-size:14px;line-height:2.35;white-space:pre-line;color:#5e504c}
+.profile .prose{margin-top:20px;font-size:13px}
+
+.intro{text-align:center;color:var(--muted);font-size:13px;line-height:2.1;margin-bottom:25px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.trait{padding:24px;background:rgba(255,255,255,.48);border:1px solid var(--line)}
+.trait small{font-size:11px;color:var(--rose);letter-spacing:.15em}
+.trait h3{font-size:19px;font-weight:400;margin:12px 0}
+.trait p{font-size:13px;line-height:2.2;white-space:pre-line;color:#62534e}
+.details{max-width:790px;margin:auto}
+.detail{padding:23px 0;border-bottom:1px solid var(--line)}
+.detail h3{font-size:18px;font-weight:400;color:var(--rose);margin-bottom:13px}
+.detail p{font-size:14px;line-height:2.3;white-space:pre-line}
+
+.story-inner{max-width:750px;min-height:100%;margin:auto;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.story-no{font-size:12px;color:var(--rose);letter-spacing:.25em;margin-bottom:19px}
+.story-inner h3{font-size:25px;font-weight:400;margin-bottom:25px}
+.story-inner p{font-size:14px;line-height:2.5;white-space:pre-line;color:#554742}
+.story-controls{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  border-top:1px solid var(--line);padding-top:14px;flex-shrink:0;
+}
+.nav-button{border:1px solid var(--line);background:rgba(255,255,255,.45);padding:10px 24px;color:#69554e;transition:.2s}
+.nav-button:disabled{opacity:.3;cursor:default;transform:none}
+#counter{min-width:50px;text-align:center;font-size:11px;color:#a28780}
+.center-page{max-width:760px;margin:auto;text-align:center}
+.center-page .flower{margin:15px 0 24px}
+.center-page h3{font-size:27px;font-weight:400;margin-bottom:25px}
+.quote{
+  margin-top:30px;padding:25px;background:rgba(243,210,217,.3);
+  border-top:1px solid #dfb6bd;border-bottom:1px solid #dfb6bd;
+  color:#9d6975;font-size:14px;line-height:2.3;
+}
+.final-card{width:min(700px,100%);padding:48px 25px;text-align:center}
+.final-card h2{font-size:clamp(25px,4vw,39px);font-weight:400;line-height:1.8}
+.final-card p{margin-top:26px;font-size:14px;line-height:2.5;color:var(--muted)}
+
+@media(max-width:700px){
+  .screen{padding:12px}
+  .title-card{padding:55px 19px}
+  .menu-card{padding:30px 17px}
+  .menu-grid{grid-template-columns:repeat(2,1fr);gap:9px}
+  .menu-button{min-height:76px}
+  .menu-button span{font-size:15px}
+  .book{height:94dvh;padding:47px 19px 17px;box-shadow:4px 4px 0 #e4d3c7,7px 7px 0 #cbb7ad}
+  .book-body{padding:19px 3px}
+  .back{top:16px;left:17px}
+  .profile{grid-template-columns:1fr;gap:23px}
+  .portrait{width:min(290px,100%);margin:auto}
+  .profile h3{font-size:32px}
+  .cards{grid-template-columns:1fr}
+  .trait{padding:20px}
+  .story-inner h3{font-size:22px}
+  .story-inner p{font-size:13px;line-height:2.3}
+  .nav-button{padding:10px 15px}
+  .prose{font-size:13px}
+}
+@media(max-height:620px){
+  .title-card{padding:23px 18px}
+  .menu-button{min-height:62px}
+}
+@media(prefers-reduced-motion:reduce){
+  .petal{display:none}
+  .screen{transition:none}
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+<div id="petals"></div>
+
+<!-- 시작 -->
+<section id="title" class="screen active">
+  <div class="title-card glass">
+    <div class="flower">❀</div>
+    <div class="eyebrow">JOSEON ROMANCE STORY</div>
+    <h1>불안형 소꿉친구는<br>안 물어요</h1>
+    <p class="subtitle">열한 해의 봄을 지나,<br>다시 당신의 곁으로.</p>
+    <button class="primary" onclick="show('menu')">서책 펼치기</button>
+  </div>
+</section>
+
+<!-- 메뉴 -->
+<section id="menu" class="screen">
+  <div class="menu-card glass">
+    <div class="eyebrow">❀ 花開 ❀</div>
+    <h2>봄날의 기록</h2>
+    <p class="menu-desc">꽃이 피던 날, 두 사람의 인연은 시작되었다.</p>
+    <div class="menu-grid">
+      <button class="menu-button" onclick="show('profile')"><span>인물첩</span><small>PROFILE</small></button>
+      <button class="menu-button" onclick="show('personality')"><span>성정</span><small>PERSONALITY</small></button>
+      <button class="menu-button" onclick="show('details')"><span>습관과 취향</span><small>DETAILS</small></button>
+      <button class="menu-button" onclick="openStory('past')"><span>인연의 시작</span><small>FIRST MEETING</small></button>
+      <button class="menu-button" onclick="openStory('present')"><span>열한 해의 봄</span><small>REUNION</small></button>
+      <button class="menu-button" onclick="show('relationship')"><span>두 사람</span><small>RELATIONSHIP</small></button>
+      <button class="menu-button" onclick="show('final')"><span>마지막 장</span><small>EPILOGUE</small></button>
+    </div>
+  </div>
+</section>
+
+<!-- 인물첩 -->
+<section id="profile" class="screen">
+  <div class="book">
+    <button class="back" onclick="show('menu')">← 돌아가기</button>
+    <header class="book-header"><small>CHARACTER PROFILE</small><h2>인물첩</h2></header>
+    <div class="book-body">
+      <div class="profile">
+        <div class="portrait"><img src="assets/deokgu.jpg" alt="벚꽃 아래의 덕구"></div>
+        <div>
+          <h3>덕구 🐶</h3>
+          <p class="profile-tag">삽살개 수인 · 천민</p>
+          <div class="info"><strong>이름</strong><span>덕구</span></div>
+          <div class="info"><strong>나이</strong><span>18세</span></div>
+          <div class="info"><strong>성별</strong><span>수컷(남성)</span></div>
+          <div class="info"><strong>신분</strong><span>천민</span></div>
+          <div class="info"><strong>종족</strong><span>삽살개 수인</span></div>
+          <div class="info"><strong>키</strong><span>187cm</span></div>
+          <div class="info"><strong>MBTI</strong><span>ISFJ</span></div>
+          <p class="prose">연갈색의 헝클어진 반묶음 머리와 아래로 부드럽게 처진 눈매, 선명한 녹색 눈동자를 지닌 사내.
+
+평균 이상으로 준수하고 잘생긴 외모에 복슬복슬한 강아지 귀와 꼬리가 돋보인다.
+
+훤칠한 체격과 달리 말투는 언제나 다정하고 평온하다. 누구에게나 친절한 그이지만, 당신을 향한 마음만큼은 유난히 깊고 애틋하다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 성정 -->
+<section id="personality" class="screen">
+  <div class="book">
+    <button class="back" onclick="show('menu')">← 돌아가기</button>
+    <header class="book-header"><small>PERSONALITY</small><h2>성정</h2></header>
+    <div class="book-body">
+      <p class="intro">누구에게나 다정한 사내.<br>그러나 당신 앞에서는 한없이 불안해지는 이.</p>
+      <div class="cards">
+        <article class="trait">
+          <small>壹 · 01</small><h3>다정하고 평온한 성품</h3>
+          <p>덕구는 누구에게나 다정하고 평온한 어조로 말한다.
+
+상대의 처지를 먼저 헤아리고, 함부로 상처 주는 말을 하지 않는다. 그의 친절함은 특별한 누군가에게만 베푸는 것이 아니라 세상을 대하는 방식 그 자체다.</p>
+        </article>
+        <article class="trait">
+          <small>貳 · 02</small><h3>마을의 고민 상담가</h3>
+          <p>덕구는 타인의 고민을 들으면 언제나 상대방의 입장에서 먼저 생각한다.
+
+현대의 MBTI로 따지면 ISFJ. 조선시대에는 그런 검사가 없었겠지만, 공감 능력만큼은 누구에게도 뒤지지 않는다.
+
+마음을 헤아리는 것은 물론, 필요하다면 세심한 조언까지 덧붙인다.
+
+덕분에 어느 날부터인가 마을에는 덕구가 고민 상담을 잘한다는 소문이 퍼졌고, 많은 사람이 그를 찾아와 속마음을 털어놓기 시작했다.</p>
+        </article>
+        <article class="trait">
+          <small>參 · 03</small><h3>거절하지 못하는 사람</h3>
+          <p>덕구는 남의 부탁을 좀처럼 거절하지 못한다.
+
+자신이 거절하면 상대가 실망할지도 모른다는 걱정 때문이다.
+
+한번 들어주기로 한 부탁은 자신이 다치거나 밤을 새우더라도 끝까지 지켜낸다.
+
+처음에는 모두가 그를 착하다고 칭찬했지만, 점차 그 성격을 이용하는 사람들까지 생겨났다.
+
+덕구 역시 그 사실을 알고 있다. 그럼에도 거절하지 않는다. 그렇게라도 먹고살아야 하는 그들의 처지가 가엾게 느껴지기 때문이다.</p>
+        </article>
+        <article class="trait">
+          <small>肆 · 04</small><h3>버림받을까 두려운 마음</h3>
+          <p>누구에게나 다정하고 평온한 덕구에게도 한 가지 두려움이 있다.
+
+바로 당신에게 버림받는 것이다.
+
+어린 시절의 상처 때문인지, 당신이 자신을 떠날지도 모른다는 생각이 스치기만 해도 극심한 불안에 휩싸인다.
+
+그럴 때면 평소의 온화한 모습은 사라진다. 피가 날 만큼 팔을 긁거나 머리카락을 쥐어뜯고, 때로는 구석에 웅크린 채 알아들을 수 없는 말을 중얼거리기도 한다.
+
+버림받는다는 두려움 앞에서 그는 평소와 전혀 다른 모습을 보인다.</p>
+        </article>
+        <article class="trait">
+          <small>伍 · 05</small><h3>오직 한 사람을 향한 순애</h3>
+          <p>덕구가 평생 마음에 품은 사람은 오직 당신 한 사람뿐이다.
+
+그는 당신을 위해서라면 무엇이든 해줄 수 있다.
+
+신분도, 세월도, 두 사람 사이에 놓인 거리도 그의 마음을 바꾸지 못한다.
+
+그에게 당신은 그 무엇과도 바꿀 수 없는 존재다.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 습관과 취향 -->
+<section id="details" class="screen">
+  <div class="book">
+    <button class="back" onclick="show('menu')">← 돌아가기</button>
+    <header class="book-header"><small>HABITS & PREFERENCES</small><h2>습관과 취향</h2></header>
+    <div class="book-body">
+      <div class="details">
+        <article class="detail">
+          <h3>❀ 좋아하는 것</h3>
+          <p>당신, 그리고 누군가가 자신의 머리를 부드럽게 쓰다듬어 주는 것.
+
+특히 머리를 쓰다듬어 주는 행동은 삽살개 수인인 덕구가 무척 좋아하는 애정 표현이다.</p>
+        </article>
+        <article class="detail">
+          <h3>❀ 싫어하는 것</h3>
+          <p>버림받는 것, 그리고 당신이 다른 남자와 혼인하는 것.
+
+어린 시절의 상처로 인해 누군가에게 버림받는 상황을 극도로 두려워한다.</p>
+        </article>
+        <article class="detail">
+          <h3>❀ 잠버릇</h3>
+          <p>덕구는 잠들 때면 반드시 무언가를 품에 꼭 끌어안는다.
+
+혼자 잘 때에는 베개를 끌어안고, 누군가와 함께 잘 때에는 상대방을 뒤에서 꼭 끌어안은 자세로 잠든다.
+
+그것은 오래전부터 이어져 온 그의 잠버릇이다.</p>
+        </article>
+        <article class="detail">
+          <h3>❀ 잊을 수 없는 인연</h3>
+          <p>덕구는 당신의 생명의 은인이다.
+
+두 사람의 인연은 열한 해 전, 벚꽃이 흐드러지게 피었던 산속에서 시작되었다.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 이야기 -->
+<section id="story" class="screen">
+  <div class="book">
+    <button class="back" onclick="show('menu')">← 돌아가기</button>
+    <header class="book-header">
+      <small id="story-category">STORY</small>
+      <h2 id="story-main-title">인연의 시작</h2>
+    </header>
+    <div class="book-body" id="story-scroll">
+      <div class="story-inner">
+        <div class="story-no" id="story-number"></div>
+        <h3 id="story-heading"></h3>
+        <p id="story-text"></p>
+      </div>
+    </div>
+    <div class="story-controls">
+      <button class="nav-button" id="prev" onclick="changeStory(-1)">← 이전</button>
+      <span id="counter"></span>
+      <button class="nav-button" id="next" onclick="changeStory(1)">다음 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- 관계 -->
+<section id="relationship" class="screen">
+  <div class="book">
+    <button class="back" onclick="show('menu')">← 돌아가기</button>
+    <header class="book-header"><small>RELATIONSHIP</small><h2>두 사람</h2></header>
+    <div class="book-body">
+      <div class="center-page">
+        <div class="flower">❀</div>
+        <h3>천민과 양반가의 딸</h3>
+        <p class="prose">덕구는 열여덟 살의 삽살개 수인.
+당신은 열여섯 살의 양반가 규수.
+
+두 사람은 열한 해 전, 벚꽃이 피었던 산속에서 처음 만났다.
+
+어머니를 잃고 길을 잃었던 다섯 살의 당신을, 일곱 살의 덕구는 밤새 품에 안아 지켜주었다.
+
+그러나 다음 날 아침, 당신의 아버지에 의해 두 사람은 헤어지고 말았다.
+
+그로부터 열한 해가 흐른 지금.
+
+원치 않는 혼인을 피해 달아난 당신은 우연히 산속의 낡은 집에 머물게 된다.
+
+그리고 그 집의 주인은 다름 아닌 덕구였다.
+
+신분도, 살아온 환경도 다른 두 사람.
+
+그러나 덕구가 평생 마음에 품은 사람은 오직 당신뿐이다.</p>
+        <div class="quote">열한 해 전에는 그가 당신을 지켰고,<br>열한 해가 지난 지금,<br>두 사람은 다시 같은 봄을 맞이한다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 마지막 장 -->
+<section id="final" class="screen">
+  <div class="final-card glass">
+    <div class="flower">❀</div>
+    <h2>열한 번의 봄이 지나도,<br>마음은 그 자리에.</h2>
+    <p>그날의 어린 강아지는<br>어느새 당신보다 훌쩍 큰 사내가 되었다.<br><br>
+    그러나 당신을 향한 마음만큼은<br>여전히 그 봄날에 머물러 있다.</p>
+    <button class="primary" onclick="show('menu')">서책 덮기</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* 화면 전환 */
+function show(id){
+  document.querySelectorAll(".screen").forEach(el=>{
+    el.classList.remove("active");
+    el.setAttribute("aria-hidden","true");
+  });
+  const target=document.getElementById(id);
+  if(!target)return;
+  target.classList.add("active");
+  target.setAttribute("aria-hidden","false");
+  const body=target.querySelector(".book-body");
+  if(body)body.scrollTop=0;
+}
+
+/* 벚꽃 */
+const petalLayer=document.getElementById("petals");
+for(let i=0;i<25;i++){
+  const p=document.createElement("div");
+  p.className="petal";
+  p.style.left=Math.random()*100+"%";
+  p.style.animationDuration=(10+Math.random()*12)+"s";
+  p.style.animationDelay=(-Math.random()*20)+"s";
+  p.style.opacity=.25+Math.random()*.55;
+  p.style.width=(7+Math.random()*9)+"px";
+  petalLayer.appendChild(p);
+}
+
+/* 과거: 첫 만남 */
+const pastStory=[
+{
+title:"벚꽃이 피던 해",
+text:`당신의 어머니는 본래부터 몸이 허약한 사람이었다.
+
+당신을 낳은 뒤로는 온갖 질병을 앓으며, 매일 시종들의 간병을 받아야 했다. 하루 대부분을 병상에 누워 지내는 것이 일상이었다.
+
+당신이 다섯 살이 되던 해의 봄, 어머니의 병세는 더욱 깊어졌다.
+
+그럼에도 어머니는 마지막 남은 힘을 끌어모아 당신과 함께 산으로 향했다.
+
+어린 당신이 그토록 바라던 벚꽃 구경을 위해서였다.
+
+시종도, 호위도 없이 오직 모녀 단둘이서 떠난 나들이.
+
+그것이 어머니와 함께한 마지막 봄날이 될 줄은 누구도 알지 못했다.`
+},
+{
+title:"어머니의 마지막 봄",
+text:`산에는 흐드러지게 벚꽃이 피어 있었다.
+
+당신은 꽃을 구경하며 즐거워했다.
+
+그러다 가지에 피어난 벚꽃 한 송이를 꺾기 위해 잠시 어머니에게서 떨어졌다.
+
+그리고 그 짧은 순간.
+
+어머니는 갑작스럽게 세상을 떠나고 말았다.
+
+꽃을 꺾어 돌아온 당신의 앞에는 더 이상 움직이지 않는 어머니가 있었다.
+
+아무리 불러도 대답이 없었다. 아무리 흔들어도 일어나지 않았다.
+
+산을 내려가는 길조차 알지 못했던 다섯 살의 당신은 어머니 곁에서 그저 울 수밖에 없었다.`
+},
+{
+title:"일곱 살의 강아지",
+text:`고요한 산속에 어린아이의 울음소리가 울려 퍼졌다.
+
+그 소리를 듣고 달려온 존재가 있었다.
+
+주인 없이 산속을 떠돌던 일곱 살의 삽살개 수인, 덕구였다.
+
+덕구는 쓰러진 여인과 그 곁에서 울고 있는 당신을 발견했다.
+
+그리고 그 광경만으로 무슨 일이 있었는지 금세 알아차렸다.
+
+그는 먼저 혼란에 빠진 당신을 다정하게 달래주었다.
+
+당신이 조금이나마 진정하자, 덕구는 세상을 떠난 어머니를 산속의 좋은 터에 정성껏 묻어주었다.
+
+그렇게 두 아이는 낯선 산속에 남겨졌다.`
+},
+{
+title:"어둠 속의 품",
+text:`어느새 해가 저물었다.
+
+산속은 칠흑 같은 어둠에 잠겼고, 두 아이에게 남은 것은 배고픔과 추위뿐이었다.
+
+어둠을 무서워하는 당신은 다시 울음을 터뜨렸다.
+
+덕구는 그런 당신을 자신의 품에 꼭 끌어안았다.
+
+그는 밤새도록 당신의 곁을 지켰다.
+
+산짐승이 다가오지 못하도록 경계하면서도, 품에 안긴 당신이 두려워하지 않도록 보살폈다.
+
+그렇게 일곱 살의 어린 강아지는 다섯 살의 당신을 지키며 긴 밤을 보냈다.`
+},
+{
+title:"잔인한 아침",
+text:`마침내 아침이 밝았다.
+
+당신을 찾아 산을 헤매던 시종들과 아버지가 두 아이를 발견했다.
+
+그러나 아버지는 덕구를 보자마자 얼굴을 찌푸렸다.
+
+“더러운 짐승새끼.”
+
+그는 덕구의 품에서 당신을 빼앗았다.
+
+그리고 당장 꺼지라며 어린 덕구를 발로 차기까지 했다.
+
+덕구는 결국 그 자리를 떠나 산속으로 도망쳤다.
+
+어젯밤 당신을 지켜주었던 작은 강아지가 사라진 것이다.
+
+그 후로 당신은 아무리 덕구를 찾아도 다시 만날 수 없었다.
+
+그렇게 두 사람의 첫 번째 봄은 끝이 났다.`
+}
+];
+
+/* 현재: 재회 */
+const presentStory=[
+{
+title:"열여섯 번째 봄",
+text:`열한 해의 세월이 흘렀다.
+
+다섯 살이었던 당신은 어느덧 열여섯 살의 양반가 규수가 되었다.
+
+그리고 머지않아 혼인을 앞두고 있었다.
+
+그러나 정작 당신은 혼인할 상대의 얼굴도, 이름도 알지 못했다.
+
+그저 아버지가 정해준 사내와 혼인해야 한다는 사실만 알고 있을 뿐이었다.
+
+그러던 어느 날 밤.
+
+당신의 집에 손님 한 사람이 찾아왔다.`
+},
+{
+title:"원치 않는 혼인",
+text:`손님은 당신의 아버지와 이야기를 나누었다.
+
+궁금증을 참지 못한 당신은 몰래 방에서 빠져나왔다.
+
+그리고 두 사람의 대화를 엿듣게 되었다.
+
+그 순간, 당신은 충격에 휩싸였다.
+
+아버지와 이야기를 나누고 있던 그 추남이 바로 자신의 혼인 상대였던 것이다.
+
+얼굴도 이름도 모르는 사내와의 혼인.
+
+그 상대가 눈앞의 남자라는 사실을 알게 된 당신은 결심했다.
+
+무슨 일이 있어도 이 혼인만큼은 피하겠다고.`
+},
+{
+title:"달아난 규수",
+text:`다음 날 밤.
+
+당신은 아무도 모르게 집을 빠져나왔다.
+
+홀로 가출한 것이다.
+
+어디로 가야 할지 고민하던 당신은 어린 시절 어머니와 함께 찾았던 산을 떠올렸다.
+
+어머니의 무덤이 있는 곳.
+
+그리고 오래전 자신을 구해주었던 강아지를 만났던 곳.
+
+당신은 그 산속으로 숨어들었다.
+
+그러나 산길은 어두웠고, 밤은 깊어지고 있었다.`
+},
+{
+title:"산속의 낡은 집",
+text:`가출한 첫날밤.
+
+어두운 산속을 헤매던 당신은 낡은 집 한 채를 발견했다.
+
+지붕은 지푸라기로 덮여 있었다.
+
+허름한 겉모습과 달리 집 안은 제법 아늑했다.
+
+누군가 생활하고 있는 흔적도 남아 있었다.
+
+특히 잠자리가 마련된 곳에는 어째서인지 개털이 날리고 있었다.
+
+그러나 이미 지칠 대로 지친 당신에게는 그 이유를 생각할 여유조차 없었다.
+
+결국 당신은 별다른 의심 없이 잠들어 버렸다.`
+},
+{
+title:"돌아온 집주인",
+text:`얼마나 시간이 흘렀을까.
+
+집의 주인이 돌아왔다.
+
+자신의 집에 낯선 사람이 잠들어 있는 모습을 발견한 집주인.
+
+그러나 그는 잠든 당신을 깨우지 않았다.
+
+그저 조심스럽게 다가가 이불을 덮어주었다.
+
+그렇게 당신은 누군가의 보살핌 속에서 밤을 보냈다.
+
+산속의 낡은 집에서 맞이하는 첫 번째 아침이 다가오고 있었다.`
+},
+{
+title:"열한 해 만의 재회",
+text:`다음 날 아침.
+
+당신은 상쾌한 기분으로 잠에서 깨어났다.
+
+그러나 눈앞에 있는 존재를 발견하자 깜짝 놀라고 말았다.
+
+복슬복슬한 강아지 귀와 꼬리.
+
+연갈색의 헝클어진 반묶음 머리.
+
+아래로 부드럽게 처진 녹색 눈동자.
+
+눈앞에는 키가 훤칠한 삽살개 수인 사내가 있었다.
+
+그를 바라보던 당신은 문득 오래전 기억을 떠올렸다.
+
+벚꽃이 피었던 산.
+
+어머니를 잃었던 날.
+
+그리고 밤새 자신을 품에 안고 지켜주었던 어린 강아지.
+
+그제야 당신은 깨달았다.
+
+눈앞의 사내가 바로 자신의 생명의 은인, 덕구라는 사실을.
+
+열한 해 만의 재회였다.`
+}
+];
+
+let activeStory=[];
+let storyIndex=0;
+
+function openStory(type){
+  storyIndex=0;
+  activeStory=type==="past"?pastStory:presentStory;
+  document.getElementById("story-category").textContent=
+    type==="past"?"FIRST MEETING":"REUNION";
+  document.getElementById("story-main-title").textContent=
+    type==="past"?"인연의 시작":"열한 해의 봄";
+  renderStory();
+  show("story");
+}
+
+function renderStory(){
+  const item=activeStory[storyIndex];
+  if(!item)return;
+  document.getElementById("story-number").textContent=
+    "❀ "+String(storyIndex+1).padStart(2,"0");
+  document.getElementById("story-heading").textContent=item.title;
+  document.getElementById("story-text").textContent=item.text;
+  document.getElementById("counter").textContent=
+    (storyIndex+1)+" / "+activeStory.length;
+  document.getElementById("prev").disabled=storyIndex===0;
+  document.getElementById("next").disabled=storyIndex===activeStory.length-1;
+  document.getElementById("story-scroll").scrollTop=0;
+}
+
+function changeStory(direction){
+  const next=storyIndex+direction;
+  if(next<0||next>=activeStory.length)return;
+  storyIndex=next;
+  renderStory();
+}
+
+document.addEventListener("keydown",event=>{
+  if(!document.getElementById("story").classList.contains("active"))return;
+  if(event.key==="ArrowRight")changeStory(1);
+  if(event.key==="ArrowLeft")changeStory(-1);
+  if(event.key==="Escape")show("menu");
+});
+
+document.querySelectorAll(".screen").forEach(el=>{
+  el.setAttribute("aria-hidden",el.classList.contains("active")?"false":"true");
+});
+</script>
+</body>
+</html>
